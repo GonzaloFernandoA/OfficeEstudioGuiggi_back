@@ -1,0 +1,16 @@
+{
+  "name": "example-function",
+  "description": "Example Lambda function template",
+  "runtime": "nodejs18.x",
+  "handler": "src/index.handler",
+  "timeout": 30,
+  "memorySize": 256,
+  "environment": {
+    "NODE_ENV": "production",
+    "LOG_LEVEL": "info"
+  },
+  "tags": {
+    "Project": "OfficeEstudioGuiggi",
+    "Environment": "production"
+  }
+}

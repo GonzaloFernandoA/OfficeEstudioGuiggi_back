@@ -1,0 +1,21 @@
+{
+  "name": "example-function",
+  "version": "1.0.0",
+  "description": "Example AWS Lambda function",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "serverless"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  }
+}

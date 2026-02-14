@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: OfficeEstudioGuiggi Backend - Serverless Application
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Environment name
+
+  ProjectName:
+    Type: String
+    Default: OfficeEstudioGuiggi
+    Description: Project name for resource naming
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        PROJECT_NAME: !Ref ProjectName
+    Tags:
+      Project: !Ref ProjectName
+      Environment: !Ref Environment
+
+Resources:
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub '${ProjectName}-api-${Environment}'
+      StageName: !Ref Environment
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      TracingEnabled: true
+      MethodSettings:
+        - LoggingLevel: INFO
+          ResourcePath: '/*'
+          HttpMethod: '*'
+          MetricsEnabled: true
+          DataTraceEnabled: true
+      Tags:
+        Project: !Ref ProjectName
+        Environment: !Ref Environment
+
+  # Example Lambda Function
+  ExampleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-example-function-${Environment}'
+      CodeUri: ../../lambdas/example-function/
+      Handler: src/index.handler
+      Description: Example Lambda function
+      Environment:
+        Variables:
+          LOG_LEVEL: info
+      Events:
+        HealthCheck:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /health
+            Method: GET
+        ExamplePost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /example
+            Method: POST
+        ExampleGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /example
+            Method: GET
+      Tags:
+        Project: !Ref ProjectName
+        Environment: !Ref Environment
+
+  # CloudWatch Log Groups
+  ExampleFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${ExampleFunction}'
+      RetentionInDays: 30
+
+  # IAM Role for Lambda Functions (if custom permissions needed)
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
+    Export:
+      Name: !Sub '${ProjectName}-api-endpoint-${Environment}'
+
+  ExampleFunctionArn:
+    Description: Example Lambda Function ARN
+    Value: !GetAtt ExampleFunction.Arn
+    Export:
+      Name: !Sub '${ProjectName}-example-function-arn-${Environment}'
+
+  ExampleFunctionName:
+    Description: Example Lambda Function Name
+    Value: !Ref ExampleFunction
+    Export:
+      Name: !Sub '${ProjectName}-example-function-name-${Environment}'
