@@ -290,10 +290,20 @@ Used for:
 2. **Stack Rollback**: CloudFormation automatic rollback
 3. **Multi-Region**: Can be deployed to multiple regions
 
-### RTO/RPO
+### RTO/RPO Targets
+
+These are target objectives based on our infrastructure design:
 
 - **RTO** (Recovery Time Objective): < 15 minutes
-- **RPO** (Recovery Point Objective): Near-zero (infrastructure as code)
+  - Achieved through: Infrastructure as Code deployment (SAM)
+  - Procedure: Redeploy from Git repository to new environment
+  - Dependencies: AWS services availability, deployment pipeline
+  
+- **RPO** (Recovery Point Objective): Near-zero
+  - Achieved through: All infrastructure defined as code in Git
+  - Application code: Version-controlled in repository
+  - Configuration: Stored in code and Parameter Store
+  - Note: For databases (when added), implement appropriate backup strategies
 
 ## Monitoring Strategy
 
