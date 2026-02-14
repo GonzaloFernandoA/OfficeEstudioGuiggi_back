@@ -1,0 +1,59 @@
+{
+  "stages": [
+    {
+      "name": "dev",
+      "description": "Development environment",
+      "variables": {
+        "environment": "development",
+        "logLevel": "DEBUG"
+      },
+      "throttling": {
+        "rateLimit": 100,
+        "burstLimit": 200
+      },
+      "logging": {
+        "dataTrace": true,
+        "metricsEnabled": true,
+        "loggingLevel": "INFO"
+      }
+    },
+    {
+      "name": "staging",
+      "description": "Staging environment",
+      "variables": {
+        "environment": "staging",
+        "logLevel": "INFO"
+      },
+      "throttling": {
+        "rateLimit": 500,
+        "burstLimit": 1000
+      },
+      "logging": {
+        "dataTrace": false,
+        "metricsEnabled": true,
+        "loggingLevel": "INFO"
+      }
+    },
+    {
+      "name": "prod",
+      "description": "Production environment",
+      "variables": {
+        "environment": "production",
+        "logLevel": "WARN"
+      },
+      "throttling": {
+        "rateLimit": 1000,
+        "burstLimit": 2000
+      },
+      "logging": {
+        "dataTrace": false,
+        "metricsEnabled": true,
+        "loggingLevel": "ERROR"
+      },
+      "caching": {
+        "enabled": true,
+        "ttl": 300
+      }
+    }
+  ]
+}
